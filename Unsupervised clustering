@@ -1,0 +1,27 @@
+from nltk.metrics import distance
+import scipy.spatial as spatial
+import numpy as np
+from scipy.cluster.vq import kmeans
+
+# sample vocabulary list
+words = ['sample words']
+
+# similarity matrix
+word_vectors = np.array([
+    [
+        distance.edit_distance(w, _w)
+        for _w in words
+    ]
+    for w in words
+], dtype=np.float)
+
+centroids, _ = kmeans(word_vectors, k_or_guess=5)
+
+word_clusters = np.argmin([
+    [spatial.distance.euclidean(wv, cv) for cv in centroids]
+    for wv in word_vectors
+], 1)
+
+for k in range(centroids.shape[0]):
+    print('k =', k)
+    print([word for i, word in enumerate(words) if word_clusters[i] == k])
